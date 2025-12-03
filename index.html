@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Calculator - Estimate Your Solar Savings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .calculator-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result-item h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-item .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .result-item .unit {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .loan-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .loan-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .loan-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .loan-card p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .environmental {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .environmental h3 {
+            margin-bottom: 15px;
+        }
+
+        .env-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .env-item {
+            text-align: center;
+        }
+
+        .env-item .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .env-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .env-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☀️ Solar Calculator</h1>
+            <p>Calculate your solar savings and environmental impact</p>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="calculator-wrapper">
+            <div class="card">
+                <h2>📊 Input Details</h2>
+                <form id="solarForm">
+                    <div class="form-group">
+                        <label>Property Type</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="propertyType" value="residential" checked>
+                                Residential
+                            </label>
+                            <label>
+                                <input type="radio" name="propertyType" value="commercial">
+                                Commercial
+                            </label>
+                            <label>
+                                <input type="radio" name="propertyType" value="industrial">
+                                Industrial
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="monthlyBill">Monthly Electricity Bill (₹)</label>
+                        <input type="number" id="monthlyBill" placeholder="e.g., 5000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="monthlyUnits">Monthly Units Consumed (kWh)</label>
+                        <input type="number" id="monthlyUnits" placeholder="e.g., 600" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rooftopArea">Available Rooftop Area (sq ft)</label>
+                        <input type="number" id="rooftopArea" placeholder="e.g., 500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <select id="state">
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Maharashtra" selected>Maharashtra</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Eligible for Subsidy?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="subsidy" value="yes" checked>
+                                Yes
+                            </label>
+                            <label>
+                                <input type="radio" name="subsidy" value="no">
+                                No
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">Calculate Savings 🚀</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>💡 Quick Info</h2>
+                <div style="color: #666; line-height: 1.8;">
+                    <p><strong>🌟 Why Go Solar?</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Save up to 90% on electricity bills</li>
+                        <li>25+ years of clean energy</li>
+                        <li>Government subsidies available</li>
+                        <li>Increase property value</li>
+                        <li>Reduce carbon footprint</li>
+                    </ul>
+                    
+                    <p style="margin-top: 20px;"><strong>📋 What You Need:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Recent electricity bill</li>
+                        <li>Available rooftop space</li>
+                        <li>Shadow-free area</li>
+                        <li>Structural stability</li>
+                    </ul>
+
+                    <p style="margin-top: 20px;"><strong>💰 PM Surya Ghar Subsidy:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>1-2 kW: ₹30,000</li>
+                        <li>2-3 kW: ₹60,000</li>
+                        <li>3+ kW: ₹78,000</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="card">
+                <h2>📈 Your Solar System Details</h2>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <h3>System Size</h3>
+                        <div class="value" id="systemSize">0</div>
+                        <div class="unit">kW</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Space Required</h3>
+                        <div class="value" id="spaceRequired">0</div>
+                        <div class="unit">sq ft</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Annual Generation</h3>
+                        <div class="value" id="annualGeneration">0</div>
+                        <div class="unit">kWh/year</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Monthly Generation</h3>
+                        <div class="value" id="monthlyGeneration">0</div>
+                        <div class="unit">kWh/month</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 30px;">💰 Financial Details</h2>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <h3>System Cost</h3>
+                        <div class="value" id="systemCost">0</div>
+                        <div class="unit">₹</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Subsidy</h3>
+                        <div class="value" id="subsidy">0</div>
+                        <div class="unit">₹</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Net Cost</h3>
+                        <div class="value" id="netCost">0</div>
+                        <div class="unit">₹</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Monthly Savings</h3>
+                        <div class="value" id="monthlySavings">0</div>
+                        <div class="unit">₹/month</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Annual Savings</h3>
+                        <div class="value" id="annualSavings">0</div>
+                        <div class="unit">₹/year</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>25-Year Savings</h3>
+                        <div class="value" id="totalSavings">0</div>
+                        <div class="unit">₹</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>Payback Period</h3>
+                        <div class="value" id="paybackPeriod">0</div>
+                        <div class="unit">years</div>
+                    </div>
+                    <div class="result-item">
+                        <h3>ROI (25 years)</h3>
+                        <div class="value" id="roi">0</div>
+                        <div class="unit">%</div>
+                    </div>
+                </div>
+
+                <div class="environmental">
+                    <h3>🌍 Environmental Impact</h3>
+                    <div class="env-grid">
+                        <div class="env-item">
+                            <div class="icon">🌳</div>
+                            <div class="value" id="trees">0</div>
+                            <div class="label">Trees Planted</div>
+                        </div>
+                        <div class="env-item">
+                            <div class="icon">💨</div>
+                            <div class="value" id="co2">0</div>
+                            <div class="label">Tons CO₂ Saved</div>
+                        </div>
+                        <div class="env-item">
+                            <div class="icon">⚫</div>
+                            <div class="value" id="coal">0</div>
+                            <div class="label">kg Coal Saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 30px;">🏦 Loan EMI Options</h2>
+                <div class="loan-options" id="loanOptions"></div>
+
+                <h2 style="margin-top: 30px;">📊 25-Year Projection (First 10 Years)</h2>
+                <div class="table-container">
+                    <table id="projectionTable">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Generation (kWh)</th>
+                                <th>Bill w/o Solar (₹)</th>
+                                <th>Bill w/ Solar (₹)</th>
+                                <th>Savings (₹)</th>
+                                <th>Cumulative (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="solar-calculator.js"></script>
+    <script>
+        const calculator = new SolarCalculator();
+
+        document.getElementById('solarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            try {
+                const propertyType = document.querySelector('input[name="propertyType"]:checked').value;
+                const monthlyBill = parseFloat(document.getElementById('monthlyBill').value);
+                const monthlyUnits = parseFloat(document.getElementById('monthlyUnits').value);
+                const rooftopArea = parseFloat(document.getElementById('rooftopArea').value) || 0;
+                const state = document.getElementById('state').value;
+                const eligibleForSubsidy = document.querySelector('input[name="subsidy"]:checked').value === 'yes';
+
+                const result = calculator.calculate({
+                    propertyType,
+                    monthlyBill,
+                    monthlyUnits,
+                    rooftopArea,
+                    state,
+                    eligibleForSubsidy
+                });
+
+                displayResults(result);
+                
+                document.getElementById('errorMessage').classList.remove('show');
+                document.getElementById('results').classList.add('show');
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').classList.add('show');
+            }
+        });
+
+        function displayResults(result) {
+            document.getElementById('systemSize').textContent = result.systemDetails.sizeRecommended;
+            document.getElementById('spaceRequired').textContent = result.systemDetails.spaceRequired;
+            document.getElementById('annualGeneration').textContent = result.systemDetails.annualGeneration;
+            document.getElementById('monthlyGeneration').textContent = result.systemDetails.monthlyGeneration;
+
+            document.getElementById('systemCost').textContent = formatNumber(result.financials.systemCost);
+            document.getElementById('subsidy').textContent = formatNumber(result.financials.subsidy);
+            document.getElementById('netCost').textContent = formatNumber(result.financials.netSystemCost);
+            document.getElementById('monthlySavings').textContent = formatNumber(result.financials.monthlySavings);
+            document.getElementById('annualSavings').textContent = formatNumber(result.financials.firstYearSavings);
+            document.getElementById('totalSavings').textContent = formatNumber(result.financials.totalSavings25Years);
+            document.getElementById('paybackPeriod').textContent = result.financials.paybackPeriod;
+            document.getElementById('roi').textContent = result.financials.roi25Years;
+
+            document.getElementById('trees').textContent = result.environmentalImpact.treesEquivalent;
+            document.getElementById('co2').textContent = result.environmentalImpact.co2Saved25Years.toFixed(1);
+            document.getElementById('coal').textContent = formatNumber(result.environmentalImpact.coalSavedKg);
+
+            const loanContainer = document.getElementById('loanOptions');
+            loanContainer.innerHTML = '';
+            result.loanOptions.forEach(loan => {
+                const loanCard = document.createElement('div');
+                loanCard.className = 'loan-card';
+                loanCard.innerHTML = `
+                    <h4>${loan.tenureYears} Year${loan.tenureYears > 1 ? 's' : ''}</h4>
+                    <p><strong>EMI:</strong> ₹${formatNumber(loan.emi)}/month</p>
+                    <p><strong>Down Payment:</strong> ₹${formatNumber(loan.downPayment)}</p>
+                    <p><strong>Total Interest:</strong> ₹${formatNumber(loan.totalInterest)}</p>
+                `;
+                loanContainer.appendChild(loanCard);
+            });
+
+            const tableBody = document.querySelector('#projectionTable tbody');
+            tableBody.innerHTML = '';
+            result.yearlyProjection.slice(0, 10).forEach(year => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${year.year}</td>
+                    <td>${formatNumber(year.generationFromSolar)}</td>
+                    <td>₹${formatNumber(year.billWithoutSolar)}</td>
+                    <td>₹${formatNumber(year.billWithSolar)}</td>
+                    <td>₹${formatNumber(year.yearlySavings)}</td>
+                    <td>₹${formatNumber(year.cumulativeCashFlow)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-IN').format(Math.round(num));
+        }
+    </script>
+</body>
+</html>
